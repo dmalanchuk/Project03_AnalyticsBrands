@@ -4,7 +4,7 @@ import time
 import pandas as pd
 
 urls = [
-    "https://www.nike.com/w/mens-clothing-6ymx6znik1",  
+    "https://www.nike.com/w/mens-clothing-6ymx6znik1", 
 ]
 
 headers = {
@@ -54,7 +54,7 @@ def parse_product_page(url):
         reviews_count_element = soup.find("div", class_="reviews-count")
         reviews_count = 0
         if reviews_count_element:
-            reviews_count = 1 
+            reviews_count = 1  
         print(f"Reviews count: {reviews_count}")
 
         data.append({
