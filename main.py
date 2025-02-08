@@ -52,19 +52,22 @@ headers = {
 with open("data_sources/raw_data/index.json") as f:
     urls_category = json.load(f)
     
-    
-for urls in urls_category[0:1]:
 
-    req = requests.get(urls, headers=headers)
-    if req.status_code == 200:
-        soup = BeautifulSoup(req.text, "html.parser")
-    
-        main_block_all_items = soup.find_all("div", class_='grid__item image-sv01')
-        
-        if main_block_all_items:
-            for item in main_block_all_items:
-                        name_item = item.find("div", class_="product-item__name-w")
-                        price_item = item.find("span", class_="price")
+for url in urls_category[:1]:
+        req = requests.get(url, headers=headers)
+        req.raise_for_status() 
 
-                        if name_item and price_item:
-                            print(f"{name_item.text.strip()} - {price_item.text.strip()}") 
+        if req.status_code == 200:
+            soup = BeautifulSoup(req.text, "html.parser")
+
+            main_block_all_items = soup.find_all("div", class_='grid__item image-sv01')
+
+            if main_block_all_items:
+                for item in main_block_all_items:
+                    name_item = item.find("div", class_="product-item__name-w")
+                    price_item = item.find("span", class_="price")
+
+                    if name_item and price_item:
+                        print(f"{name_item.text.strip()} - {price_item.text.strip()}")
+                        
+                                        
