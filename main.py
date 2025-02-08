@@ -55,26 +55,26 @@ with open("data_sources/raw_data/index.json") as f:
 
 products_data = []
 
-for url in urls_category[:1]:
-        req = requests.get(url, headers=headers)
-        req.raise_for_status() 
+for url in urls_category:
+    req = requests.get(url, headers=headers)
+    req.raise_for_status() 
 
-        if req.status_code == 200:
-            soup = BeautifulSoup(req.text, "html.parser")
+    if req.status_code == 200:
+        soup = BeautifulSoup(req.text, "html.parser")
 
-            main_block_all_items = soup.find_all("div", class_='grid__item image-sv01')
+        main_block_all_items = soup.find_all("div", class_='grid__item image-sv01')
 
-            if main_block_all_items:
-                for item in main_block_all_items:
-                    name_item = item.find("div", class_="product-item__name-w")
-                    price_item = item.find("span", class_="price")
+        if main_block_all_items:
+            for item in main_block_all_items:
+                name_item = item.find("div", class_="product-item__name-w")
+                price_item = item.find("span", class_="price")
 
-                    if name_item and price_item:
-                        products_data.append({
-                            "Назва товару": name_item.text.strip(),
-                            "Ціна": price_item.text.strip(),
-                            "URL сторінки": url
-                        })
+                if name_item and price_item:
+                    products_data.append({
+                        "Назва товару": name_item.text.strip(),
+                        "Ціна": price_item.text.strip(),
+                        "URL сторінки": url
+                    })
                         
 if products_data:
     df = pd.DataFrame(products_data)
