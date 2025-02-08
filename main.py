@@ -101,7 +101,7 @@ for idx, urls in enumerate(urls_category):
                     price_item = item.find("span", class_="price")
                     
                     if name_item and price_item:
-                        # print(f"{name_item.text.strip()} - {price_item.text.strip()}")
+                        # print(f"{category}: {name_item.text.strip()} - {price_item.text.strip()}")
                         
                         all_item_categories.append({
                             "category": category,
@@ -111,7 +111,7 @@ for idx, urls in enumerate(urls_category):
                     else:
                         print("item is not find")
                         
-if all_item_categories:
-    df = pd.DataFrame(all_item_categories)
-    df.to_excel("data_sources/raw_data/all_products.xlsx",  index=False)
-    print("successfuly!")
+# if all_item_categories:
+#     df = pd.DataFrame(all_item_categories)
+#     df.to_excel("data_sources/raw_data/all_products.xlsx",  index=False)
+#     print("successfuly!")
