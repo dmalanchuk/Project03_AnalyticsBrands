@@ -1,75 +1,70 @@
 import requests
-from bs4 import BeautifulSoup as bs
-import time
 import pandas as pd
+import json
+from bs4 import BeautifulSoup
 
-urls = [
-    "https://www.nike.com/w/mens-clothing-6ymx6znik1", 
-]
+
+
+url = "https://ua.puma.com/uk/sportivnye-tovary-dlja-muzhchin.html"
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
 }
 
-data = []
+# url_categories = "https://ua.puma.com/uk/sportivnye-tovary-dlja-muzhchin.html?article_type="
 
-page_limit = 3
-current_page = 0
+# categories_word_arr = ["sneakers", "hoodies", "pants", "jacket", "down"]
+# full_req_arr = []
 
-def parse_main_page(url):
-    global current_page
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        print(f'Loading page {url} successful')
-        soup = bs(response.text, "html.parser")
+# for i in categories_word_arr:
+#     full_req = url_categories + i
+#     full_req_arr.append(full_req)
+    
+# with open("data_sources/raw_data/index.json", "w") as file:
+#     json.dump(full_req_arr, file, indent=4)
 
-        product_links = soup.select("a.product-card__link-overlay")
-
-        if not product_links:
-            print("No product links found. Check the CSS selector for product links.")
+# categories = []
+ 
+# req = requests.get(url, headers=headers)
+# if req.status_code == 200:
+#     soup = BeautifulSoup(req.text, "html.parser")
+    
+    
+#     category_list = soup.find("div", class_="filter-block filter-type-article_type _active")
+#     if category_list:
+#         order_list_categories = category_list.find("ol", class_="items filter-items")        
         
-        for link in product_links:
-            if current_page >= page_limit:
-                print(f"Reached page limit of {page_limit} products.")
-                return
-            product_url = link['href']
-            print(f"Parsing product page: {product_url}")
-            parse_product_page(product_url)
-            current_page += 1
-            time.sleep(2)
+#         if order_list_categories:
+#             all_li_category = order_list_categories.find_all("li", class_="item filter-items__item")
+            
+#             for li in all_li_category:
+#                 link = li.find("a", class_="filter-items__item-link")
+#                 if link:
+#                     category_name = link.find("span", class_="filter-items__item-input-text checkbox-block__text")
+#                     src = category_name.text.strip()
+#                     categories.append(src)
+                        
+    
+# if categories:
+#     df = pd.DataFrame(categories, columns=["categories"])
+#     df.to_excel("data_sources/raw_data/categories.xlsx", index=False)
 
-def parse_product_page(url):
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        soup = bs(response.text, "html.parser")
+with open("data_sources/raw_data/index.json") as f:
+    urls_category = json.load(f)
+    
+    
+for urls in urls_category[0:1]:
 
-        title_element = soup.find("h1", class_="product-title")
-        title = title_element.text.strip() if title_element else "No title"
-        print(f"Product title: {title}")
+    req = requests.get(urls, headers=headers)
+    if req.status_code == 200:
+        soup = BeautifulSoup(req.text, "html.parser")
+    
+        main_block_all_items = soup.find_all("div", class_='grid__item image-sv01')
+        
+        if main_block_all_items:
+            for item in main_block_all_items:
+                        name_item = item.find("div", class_="product-item__name-w")
+                        price_item = item.find("span", class_="price")
 
-        star_elements = soup.find_all("svg", class_="star-icon--full")
-        star_count = len(star_elements)
-        print(f"Rating: {star_count} stars")
-
-        reviews_count_element = soup.find("div", class_="reviews-count")
-        reviews_count = 0
-        if reviews_count_element:
-            reviews_count = 1  
-        print(f"Reviews count: {reviews_count}")
-
-        data.append({
-            'title': title,
-            'star_count': star_count,
-            'reviews_count': reviews_count
-        })
-
-if __name__ == "__main__":
-    for url in urls:
-        parse_main_page(url)
-
-    if data:
-        df = pd.DataFrame(data)
-        df.to_excel("brands_reviews.xlsx", index=False)
-        print("Дані збережено в brands_reviews.xlsx")
-    else:
-        print("No data collected.")
+                        if name_item and price_item:
+                            print(f"{name_item.text.strip()} - {price_item.text.strip()}") 
