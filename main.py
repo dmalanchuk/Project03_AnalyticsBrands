@@ -53,6 +53,8 @@ with open("data_sources/raw_data/index.json") as f:
     urls_category = json.load(f)
     
 
+products_data = []
+
 for url in urls_category[:1]:
         req = requests.get(url, headers=headers)
         req.raise_for_status() 
@@ -68,6 +70,13 @@ for url in urls_category[:1]:
                     price_item = item.find("span", class_="price")
 
                     if name_item and price_item:
-                        print(f"{name_item.text.strip()} - {price_item.text.strip()}")
+                        products_data.append({
+                            "Назва товару": name_item.text.strip(),
+                            "Ціна": price_item.text.strip(),
+                            "URL сторінки": url
+                        })
                         
-                                        
+if products_data:
+    df = pd.DataFrame(products_data)
+    df.to_excel("data_sources/raw_data/products_data.xlsx", index=False) 
+    print("Дані успішно збережені у файл 'products_data.xlsx'!")
