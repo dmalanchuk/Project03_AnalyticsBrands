@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup
 
 
 
-url = "https://ua.puma.com/uk/sportivnye-tovary-dlja-muzhchin.html"
+url = "https://ua.puma.com/uk/sportivnye-tovary-dlja-muzhchin.html?p="
+
 
 headers = {
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
@@ -83,34 +84,38 @@ with open("data_sources/raw_data/index.json") as f:
     
 all_item_categories = []    
 for idx, urls in enumerate(urls_category):
-    respone = requests.get(urls, headers=headers)
-    
-    if respone.status_code == 200:
-        soup = BeautifulSoup(respone.text, "html.parser")
-        
-        main_block = soup.find("div", class_="grid")
-        
-        if main_block:
-            all_block_item = main_block.find_all("div", class_="grid__item")
+    for ful_url in range(1, 10):
+        respone = requests.get(urls, headers=headers)
+            
+        if respone.status_code == 200:
+            soup = BeautifulSoup(respone.text, "html.parser")
                 
-            if all_block_item:
-                category = categories_word_arr[idx % len(categories_word_arr)]
+            main_block = soup.find("div", class_="grid")
                 
-                for item in all_block_item:
-                    name_item = item.find("a", class_="product-item__name")
-                    price_item = item.find("span", class_="price")
+            if main_block:
+                all_block_item = main_block.find_all("div", class_="grid__item")
                     
-                    if name_item and price_item:
-                        # print(f"{category}: {name_item.text.strip()} - {price_item.text.strip()}")
-                        
-                        all_item_categories.append({
-                            "category": category,
-                            "name": name_item.text.strip(),
-                            "price": price_item.text.strip()
-                        })
-                    else:
-                        print("item is not find")
-                        
+                if all_block_item:    
+                    
+                    category = categories_word_arr[idx % len(categories_word_arr)]
+                                
+                    for item in all_block_item:
+                        name_item = item.find("a", class_="product-item__name")
+                        price_item = item.find("span", class_="price")
+                            
+                        if name_item and price_item:
+                            # print(f"{name_item.text.strip()} - {price_item.text.strip()}")
+                                
+                            all_item_categories.append({
+                                "category": category,
+                                "name": name_item.text.strip(),
+                                "price": price_item.text.strip()
+                            })
+                        else:
+                            pass
+                            # print("item is not find")
+                url += str(ful_url)
+            
 # if all_item_categories:
 #     df = pd.DataFrame(all_item_categories)
 #     df.to_excel("data_sources/raw_data/all_products.xlsx",  index=False)
